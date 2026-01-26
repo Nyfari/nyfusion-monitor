@@ -3,7 +3,7 @@
  * @file LinuxCPUProvider.hpp
  * Created by
  * @author Marcos Henrique
- * @date 03/01/2026
+ * @date 04/01/2026
  *
  * @brief
  */

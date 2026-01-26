@@ -3,7 +3,7 @@
  * @file Types.hpp
  * Created by
  * @author Marcos Henrique
- * @date 14/12/2025
+ * @date 04/01/2026
  *
  * @brief
  */
