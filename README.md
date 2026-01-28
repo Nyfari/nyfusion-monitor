@@ -52,3 +52,17 @@ Esta seção será preenchida conforme o projeto evoluir.
 
 Projeto mantido por **Nyfari**.  
 Desenvolvimento focado em qualidade arquitetural, clareza e escala a longo prazo.
+
+## 📜 Licença
+
+Copyright © 2025 Nyfari
+
+Este projeto é licenciado sob a **GNU General Public License v3.0 (GPL-3.0)**.
+
+Você pode usar, estudar, modificar e redistribuir este software, desde que:
+- O código-fonte permaneça aberto;
+- As obras derivadas também sejam licenciadas sob GPL v3;
+- Os devidos créditos sejam mantidos ao projeto original e à Nyfari.
+
+Consulte o arquivo `LICENSE` para mais detalhes.
+
