@@ -1,4 +1,6 @@
-add_library(ny_core INTERFACE)
+add_library(ny_core INTERFACE
+        common/Types.hpp
+)
 
 target_include_directories(ny_core
         INTERFACE
