@@ -11,6 +11,7 @@ add_executable(ny_fusion_monitor
 target_link_libraries(ny_fusion_monitor
         PRIVATE
         ny_application
+        ny_infrastructure
         ny_ui
 )
 

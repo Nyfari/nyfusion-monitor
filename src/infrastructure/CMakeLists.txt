@@ -1,4 +1,10 @@
 add_library(ny_infrastructure STATIC
+        common/ISensor.hpp
+        common/ICpuFrequencySensor.hpp
+        common/ICpuPowerSensor.hpp
+        common/ICpuTemperatureSensor.hpp
+        common/ICpuUsageSensor.hpp
+
         linux/factory/LinuxProviderFactory.cpp
         linux/factory/LinuxProviderFactory.hpp
 
@@ -8,6 +14,16 @@ add_library(ny_infrastructure STATIC
         linux/providers/LinuxGPUProvider.hpp
         linux/providers/LinuxMemoryProvider.cpp
         linux/providers/LinuxMemoryProvider.hpp
+
+        linux/sensors/LinuxCpuFrequencySensor.cpp
+        linux/sensors/LinuxCpuFrequencySensor.hpp
+        linux/sensors/LinuxCpuTemperatureSensor.cpp
+        linux/sensors/LinuxCpuTemperatureSensor.hpp
+        linux/sensors/LinuxCpuUsageSensor.cpp
+        linux/sensors/LinuxCpuUsageSensor.hpp
+
+        linux/readers/ProcStatReader.cpp
+        linux/readers/ProcStatReader.hpp
 
         stub/factory/StubProviderFactory.cpp
         stub/factory/StubProviderFactory.hpp

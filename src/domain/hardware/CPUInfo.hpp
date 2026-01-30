@@ -8,29 +8,26 @@
  * @brief
  */
 #include <string>
-#include <cstdint>
+#include <vector>
+#include <optional>
 
-namespace ny::domain::cpu
-{
-    class CPUInfo final
-    {
-    public:
-        CPUInfo(
-            std::string modelName,
-            std::uint32_t coreCount,
-            std::uint32_t threadCount,
-            std::uint64_t baseFrequencyHz
-        );
+namespace ny::domain::hardware {
 
-        [[nodiscard]] const std::string& modelName() const noexcept;
-        [[nodiscard]] std::uint32_t coreCount() const noexcept;
-        [[nodiscard]] std::uint32_t threadCount() const noexcept;
-        [[nodiscard]] std::uint64_t baseFrequencyHz() const noexcept;
-
-    private:
-        const std::string m_modelName;
-        const std::uint32_t m_coreCount;
-        const std::uint32_t m_threadCount;
-        const std::uint64_t m_baseFrequencyHz;
+    struct CPUThreadInfo {
+        int threadId;
+        double frequencyMHz;
+        double usagePercent;
     };
+
+    struct CPUInfo {
+        std::string name;
+        double temperatureCelsius;
+        double averageFrequencyMHz;
+        double usagePercent;
+        int coreCount;
+        int threadCount;
+        std::vector<CPUThreadInfo> threads;
+        std::optional<double> powerWatts;
+    };
+
 }

@@ -9,12 +9,11 @@
  */
 #include "../hardware/CPUInfo.hpp"
 
-namespace ny::domain::providers
-{
-    class CPUProvider
-    {
-        public:
-            virtual ~CPUProvider() = default;
-            virtual cpu::CPUInfo collectCPUInfo() = 0;
+namespace ny::domain::providers {
+
+    class CPUProvider {
+    public:
+        virtual ~CPUProvider() = default;
+        virtual ny::domain::hardware::CPUInfo collect() = 0;
     };
 }

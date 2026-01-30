@@ -40,3 +40,4 @@
 # debug information files
 *.dwo
 /bin/Debug/ny_fusion_monitor
+/bin/Release/ny_fusion_monitor
