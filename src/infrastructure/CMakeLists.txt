@@ -1,9 +1,10 @@
 add_library(ny_infrastructure STATIC
         common/ISensor.hpp
-        common/ICpuFrequencySensor.hpp
-        common/ICpuPowerSensor.hpp
-        common/ICpuTemperatureSensor.hpp
-        common/ICpuUsageSensor.hpp
+        common/cpu/ICpuFrequencySensor.hpp
+        common/cpu/ICpuPowerSensor.hpp
+        common/cpu/ICpuTemperatureSensor.hpp
+        common/cpu/ICpuUsageSensor.hpp
+        common/IMemorySensor.hpp
 
         linux/factory/LinuxProviderFactory.cpp
         linux/factory/LinuxProviderFactory.hpp
@@ -15,12 +16,14 @@ add_library(ny_infrastructure STATIC
         linux/providers/LinuxMemoryProvider.cpp
         linux/providers/LinuxMemoryProvider.hpp
 
-        linux/sensors/LinuxCpuFrequencySensor.cpp
-        linux/sensors/LinuxCpuFrequencySensor.hpp
-        linux/sensors/LinuxCpuTemperatureSensor.cpp
-        linux/sensors/LinuxCpuTemperatureSensor.hpp
-        linux/sensors/LinuxCpuUsageSensor.cpp
-        linux/sensors/LinuxCpuUsageSensor.hpp
+        linux/sensors/cpu/LinuxCpuFrequencySensor.cpp
+        linux/sensors/cpu/LinuxCpuFrequencySensor.hpp
+        linux/sensors/cpu/LinuxCpuTemperatureSensor.cpp
+        linux/sensors/cpu/LinuxCpuTemperatureSensor.hpp
+        linux/sensors/cpu/LinuxCpuUsageSensor.cpp
+        linux/sensors/cpu/LinuxCpuUsageSensor.hpp
+        linux/sensors/ram/LinuxMemorySensor.cpp
+        linux/sensors/ram/LinuxMemorySensor.hpp
 
         linux/readers/ProcStatReader.cpp
         linux/readers/ProcStatReader.hpp

@@ -15,7 +15,7 @@
 #include <vector>
 #include <optional>
 
-#include "common/ICpuFrequencySensor.hpp"
+#include "../../../common/cpu/ICpuFrequencySensor.hpp"
 #include "common/ISensor.hpp"
 
 namespace ny::infra::linux::sensor {

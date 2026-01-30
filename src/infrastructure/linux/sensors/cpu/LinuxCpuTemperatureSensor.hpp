@@ -18,7 +18,7 @@
 #include <optional>
 #include <vector>
 
-#include "common/ICpuTemperatureSensor.hpp"
+#include "../../../common/cpu/ICpuTemperatureSensor.hpp"
 #include "common/ISensor.hpp"
 
 namespace ny::infra::linux::sensor {

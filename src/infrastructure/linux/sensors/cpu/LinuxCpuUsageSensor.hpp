@@ -17,8 +17,7 @@
 #define NY_FUSION_MONITOR_LINUXCPUUSAGESENSOR_HPP
 #include <vector>
 
-#include "common/ICpuUsageSensor.hpp"
-#include "common/ISensor.hpp"
+#include "../../../common/cpu/ICpuUsageSensor.hpp"
 #include "linux/readers/ProcStatReader.hpp"
 
 namespace ny::infra::linux::sensor {

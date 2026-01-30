@@ -15,7 +15,7 @@
  */
 #ifndef NY_FUSION_MONITOR_ICPUPOWERSENSOR_HPP
 #define NY_FUSION_MONITOR_ICPUPOWERSENSOR_HPP
-#include "ISensor.hpp"
+#include "../ISensor.hpp"
 
 namespace ny::infra::common {
 

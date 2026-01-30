@@ -13,8 +13,8 @@ namespace ny::domain::providers
 {
     class MemoryProvider
     {
-        public:
-            virtual ~MemoryProvider() = default;
-            virtual memory::MemoryInfo collectMemoryInfo() = 0;
+    public:
+        virtual ~MemoryProvider() = default;
+        virtual ny::domain::hardware::MemoryInfo collect() const = 0;
     };
 }

@@ -7,9 +7,9 @@
 #include "LinuxCPUProvider.hpp"
 
 // Sensores concretos
-#include "linux/sensors/LinuxCpuFrequencySensor.hpp"
-#include "linux/sensors/LinuxCpuUsageSensor.hpp"
-#include "linux/sensors/LinuxCpuTemperatureSensor.hpp"
+#include "../sensors/cpu/LinuxCpuFrequencySensor.hpp"
+#include "linux/sensors/cpu/LinuxCpuUsageSensor.hpp"
+#include "linux/sensors/cpu/LinuxCpuTemperatureSensor.hpp"
 
 #include <fstream>
 #include <string>
