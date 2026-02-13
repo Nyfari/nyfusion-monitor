@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(ny_fusion_monitor
-        VERSION 0.1.12
+        VERSION 0.0.1
         LANGUAGES CXX
 )
 
