@@ -40,12 +40,13 @@ int main() {
         std::cout << "Temperatura média: " << static_cast<int>(cpuInfo.temperatureCelsius) << " °C\n";
         std::cout << "Potência: " << (cpuInfo.powerWatts ? std::to_string(*cpuInfo.powerWatts) + " W" : "Não disponível") << "\n\n";
 
-        std::cout << "=== Threads ===\n";
-        for (const auto& thread : cpuInfo.threads) {
+        /*std::cout << "=== Threads ===\n";
+        for (const auto& thread : cpuInfo.threads)
+        {
             std::cout << "Thread " << thread.threadId
-                      << " | Frequência: " << std::fixed << std::setprecision(2) << thread.frequencyMHz << " MHz"
-                      << " | Uso: " << std::fixed << std::setprecision(2) << thread.usagePercent << " %\n";
-        }
+                << " | Frequência: " << std::fixed << std::setprecision(2) << thread.frequencyMHz << " MHz"
+                << " | Uso: " << std::fixed << std::setprecision(2) << thread.usagePercent << " %\n";
+        }*/
 
         std::cout << "\nFrequência média: " << std::fixed << std::setprecision(2) << cpuInfo.averageFrequencyMHz << " MHz\n";
         std::cout << "Uso médio total: " << std::fixed << std::setprecision(2) << cpuInfo.usagePercent << " %\n\n";

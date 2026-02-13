@@ -1,43 +1,128 @@
+# ============================================
 # Prerequisites
+# ============================================
 *.d
 
+# ============================================
 # Compiled Object files
+# ============================================
 *.slo
 *.lo
 *.o
 *.obj
 
+# ============================================
 # Precompiled Headers
+# ============================================
 *.gch
 *.pch
 
+# ============================================
 # Linker files
+# ============================================
 *.ilk
 
+# ============================================
 # Debugger Files
+# ============================================
 *.pdb
+*.dwo
 
+# ============================================
 # Compiled Dynamic libraries
+# ============================================
 *.so
 *.dylib
 *.dll
 
+# ============================================
 # Fortran module files
+# ============================================
 *.mod
 *.smod
 
+# ============================================
 # Compiled Static libraries
+# ============================================
 *.lai
 *.la
 *.a
 *.lib
 
+# ============================================
 # Executables
+# ============================================
 *.exe
 *.out
 *.app
 
-# debug information files
-*.dwo
+# ============================================
+# CMake
+# ============================================
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
+CMakeScripts/
+Testing/
+Makefile
+CTestTestfile.cmake
+install_manifest.txt
+compile_commands.json
+_deps/
+
+# ============================================
+# CLion (JetBrains)
+# ============================================
+.idea/
+*.iml
+
+# ============================================
+# Visual Studio / MSVC
+# ============================================
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# Diretórios de build do Visual Studio
+Debug/
+Release/
+x64/
+x86/
+ARM/
+ARM64/
+out/
+bin/
+obj/
+
+# Arquivos temporários do VS
+*.ipch
+*.opendb
+*.VC.db
+*.VC.opendb
+
+# ============================================
+# Logs
+# ============================================
+*.log
+
+# ============================================
+# Sistema operacional
+# ============================================
+
+# Linux
+*.swp
+*.swo
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS (caso use no futuro)
+.DS_Store
+
+# ============================================
+# Seus binários específicos
+# ============================================
 /bin/Debug/ny_fusion_monitor
 /bin/Release/ny_fusion_monitor
