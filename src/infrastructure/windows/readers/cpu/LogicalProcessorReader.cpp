@@ -1,7 +1,6 @@
 // NyFusion Monitor
 // Copyright (C) 2026 Nyfari
 // SPDX-License-Identifier: GPL-3.0-or-later
-#pragma once
 /**
  * NyFusion Monitor
  * Copyright (C) 2026 Nyfari
@@ -13,52 +12,64 @@
  * @date 12/02/2026
  */
 #include "LogicalProcessorReader.hpp"
+
 #include <windows.h>
+#include <vector>
+#include <bitset>
 
 namespace ny::infra::windows::reader {
 
-    int LogicalProcessorReader::readLogicalProcessorCount() const {
-        SYSTEM_INFO sysInfo;
-        GetSystemInfo(&sysInfo);
-        return static_cast<int>(sysInfo.dwNumberOfProcessors);
-    }
+    std::optional<std::pair<int, int>>
+        LogicalProcessorReader::readCoreAndThreadCount() const {
 
-    int LogicalProcessorReader::readPhysicalCoreCount() const {
+        DWORD length = 0;
 
-        DWORD len = 0;
-        GetLogicalProcessorInformationEx(
-            RelationProcessorCore,
+        if (!GetLogicalProcessorInformationEx(RelationProcessorCore,
             nullptr,
-            &len
-        );
+            &length) &&
+            GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+            return std::nullopt;
+        }
 
-        std::vector<uint8_t> buffer(len);
+        std::vector<uint8_t> buffer(length);
 
-        auto* ptr =
-            reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(
-                buffer.data()
-            );
-
-        GetLogicalProcessorInformationEx(
+        if (!GetLogicalProcessorInformationEx(
             RelationProcessorCore,
-            ptr,
-            &len
-        );
+            reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(
+                buffer.data()),
+            &length)) {
+            return std::nullopt;
+        }
 
-        int count = 0;
+        int coreCount = 0;
+        int logicalCount = 0;
 
-        while (reinterpret_cast<uint8_t*>(ptr) <
-               buffer.data() + len) {
+        DWORD offset = 0;
 
-            if (ptr->Relationship == RelationProcessorCore)
-                ++count;
+        while (offset < length) {
 
-            ptr = reinterpret_cast<
-                PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(
-                reinterpret_cast<uint8_t*>(ptr) + ptr->Size
-            );
-               }
+            auto* info =
+                reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(
+                    buffer.data() + offset);
 
-        return count;
+            if (info->Relationship == RelationProcessorCore) {
+
+                coreCount++;
+
+                KAFFINITY mask = info->Processor.GroupMask[0].Mask;
+
+                logicalCount += static_cast<int>(
+                    std::bitset<sizeof(KAFFINITY) * 8>(mask).count());
+            }
+
+            offset += info->Size;
+        }
+
+        if (coreCount == 0 || logicalCount == 0) {
+            return std::nullopt;
+        }
+
+        return std::make_pair(coreCount, logicalCount);
     }
+
 }

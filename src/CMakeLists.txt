@@ -6,7 +6,7 @@ add_subdirectory(ui)
 
 add_executable(ny_fusion_monitor
         main.cpp
-)
+  )
 
 target_link_libraries(ny_fusion_monitor
         PRIVATE

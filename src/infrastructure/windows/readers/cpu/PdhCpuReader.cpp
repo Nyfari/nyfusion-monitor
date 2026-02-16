@@ -1,7 +1,6 @@
 // NyFusion Monitor
 // Copyright (C) 2026 Nyfari
 // SPDX-License-Identifier: GPL-3.0-or-later
-#pragma once
 /**
  * NyFusion Monitor
  * Copyright (C) 2026 Nyfari
@@ -13,59 +12,49 @@
  * @date 12/02/2026
  */
 #include "PdhCpuReader.hpp"
+
 #include <stdexcept>
 
 namespace ny::infra::windows::reader {
 
     PdhCpuReader::PdhCpuReader() {
-        PdhOpenQuery(nullptr, 0, &query);
-        PdhAddEnglishCounter(
-            query,
-            L"\\Processor(*)\\% Processor Time",
+        if (PdhOpenQuery(nullptr, 0, &query_) != ERROR_SUCCESS) {
+            throw std::runtime_error("Failed to open PDH query");
+        }
+
+        if (PdhAddEnglishCounter(
+            query_,
+            "\\Processor(_Total)\\% Processor Time",
             0,
-            &counter
-        );
-        PdhCollectQueryData(query);
+            &counter_) != ERROR_SUCCESS) {
+            PdhCloseQuery(query_);
+            throw std::runtime_error("Failed to add PDH counter");
+        }
+
+        PdhCollectQueryData(query_);
     }
 
     PdhCpuReader::~PdhCpuReader() {
-        if (query)
-            PdhCloseQuery(query);
+        if (query_) {
+            PdhCloseQuery(query_);
+        }
     }
 
-    std::vector<double> PdhCpuReader::readPerLogicalProcessorUsage() {
-        PdhCollectQueryData(query);
+    double PdhCpuReader::readTotalUsage() const {
+        if (PdhCollectQueryData(query_) != ERROR_SUCCESS) {
+            return 0.0;
+        }
 
-        DWORD bufferSize = 0;
-        DWORD itemCount = 0;
-
-        PdhGetFormattedCounterArray(
-            counter,
+        PDH_FMT_COUNTERVALUE value{};
+        if (PdhGetFormattedCounterValue(
+            counter_,
             PDH_FMT_DOUBLE,
-            &bufferSize,
-            &itemCount,
-            nullptr
-        );
+            nullptr,
+            &value) != ERROR_SUCCESS) {
+            return 0.0;
+        }
 
-        std::vector<uint8_t> buffer(bufferSize);
-
-        auto* items =
-            reinterpret_cast<PDH_FMT_COUNTERVALUE_ITEM*>(buffer.data());
-
-        PdhGetFormattedCounterArray(
-            counter,
-            PDH_FMT_DOUBLE,
-            &bufferSize,
-            &itemCount,
-            items
-        );
-
-        std::vector<double> result;
-        result.reserve(itemCount);
-
-        for (DWORD i = 0; i < itemCount; ++i)
-            result.push_back(items[i].FmtValue.doubleValue);
-
-        return result;
+        return value.doubleValue;
     }
+
 }

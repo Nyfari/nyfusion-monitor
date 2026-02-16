@@ -1,7 +1,6 @@
 // NyFusion Monitor
 // Copyright (C) 2026 Nyfari
 // SPDX-License-Identifier: GPL-3.0-or-later
-#pragma once
 /**
  * NyFusion Monitor
  * Copyright (C) 2026 Nyfari
@@ -13,16 +12,16 @@
  *
  * @brief
  */
-#ifndef NY_FUSION_MONITOR_REGISTRYCPUREADER_HPP
-#define NY_FUSION_MONITOR_REGISTRYCPUREADER_HPP
+#pragma once
+
 #include <string>
+#include <optional>
 
 namespace ny::infra::windows::reader {
 
     class RegistryCpuReader {
     public:
-        std::string readCpuName() const;
+        std::optional<std::string> readProcessorName() const;
     };
-}
 
-#endif //NY_FUSION_MONITOR_REGISTRYCPUREADER_HPP
+}

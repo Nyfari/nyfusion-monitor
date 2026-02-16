@@ -1,7 +1,6 @@
 // NyFusion Monitor
 // Copyright (C) 2026 Nyfari
 // SPDX-License-Identifier: GPL-3.0-or-later
-#pragma once
 /**
  * NyFusion Monitor
  * Copyright (C) 2026 Nyfari
@@ -16,10 +15,22 @@
 #ifndef NY_FUSION_MONITOR_WINDOWSMEMORYPROVIDER_HPP
 #define NY_FUSION_MONITOR_WINDOWSMEMORYPROVIDER_HPP
 
+#pragma once
+ /**
+  * @file WindowsMemoryProvider.hpp
+  */
 
-class WindowsMemoryProvider
-{
-};
+#include "../domain/providers/MemoryProvider.hpp"
 
+namespace ny::infra::windows {
+
+    class WindowsMemoryProvider final
+        : public ny::domain::providers::MemoryProvider
+    {
+    public:
+        ny::domain::hardware::MemoryInfo collect() const override;
+    };
+
+} // namespace ny::infra::windows
 
 #endif //NY_FUSION_MONITOR_WINDOWSMEMORYPROVIDER_HPP

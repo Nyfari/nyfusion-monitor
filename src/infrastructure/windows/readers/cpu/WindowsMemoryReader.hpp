@@ -5,30 +5,28 @@
  * NyFusion Monitor
  * Copyright (C) 2026 Nyfari
  * SPDX-License-Identifier: GPL-3.0-or-later
- * @file LogicalProcessorReader.hpp
+ * @file WmiTemperatureReader.hpp
  * Created by
  * @author Marcos Henrique
- * @date 12/02/2026
+ * @date 15/02/2026
  *
  * @brief
  */
 #pragma once
 
-#ifndef NY_FUSION_MONITOR_LOGICALPROCESSORREADER_HPP
-#define NY_FUSION_MONITOR_LOGICALPROCESSORREADER_HPP
-
 #include <optional>
-#include <utility>
+#include <cstdint>
 
 namespace ny::infra::windows::reader {
 
-    class LogicalProcessorReader {
+    struct MemorySnapshot {
+        uint64_t totalBytes;
+        uint64_t freeBytes;
+    };
+
+    class WindowsMemoryReader {
     public:
-        std::optional<std::pair<int, int>> readCoreAndThreadCount() const;
+        std::optional<MemorySnapshot> read() const;
     };
 
 }
-
-
-#endif
-//NY_FUSION_MONITOR_LOGICALPROCESSORREADER_HPP

@@ -5,6 +5,7 @@ add_library(ny_infrastructure STATIC)
 # ============================================================
 
 target_sources(ny_infrastructure PRIVATE
+        ../common/Logger.cpp
         common/ISensor.hpp
         common/cpu/ICpuFrequencySensor.hpp
         common/cpu/ICpuPowerSensor.hpp
@@ -77,6 +78,9 @@ if(WIN32)
             windows/sensors/cpu/WindowsCpuTemperatureSensor.cpp
             windows/sensors/cpu/WindowsCpuTemperatureSensor.hpp
 
+            windows/sensors/ram/WindowsMemorySensor.cpp
+            windows/sensors/ram/WindowsMemorySensor.hpp
+
             windows/readers/cpu/SystemTimesReader.cpp
             windows/readers/cpu/SystemTimesReader.hpp
             windows/readers/cpu/PdhCpuReader.cpp
@@ -87,15 +91,12 @@ if(WIN32)
             windows/readers/cpu/RegistryCpuReader.hpp
             windows/readers/cpu/LogicalProcessorReader.cpp
             windows/readers/cpu/LogicalProcessorReader.hpp
+            windows/readers/cpu/WindowsMemoryReader.cpp
+            windows/readers/cpu/WindowsMemoryReader.hpp
             windows/readers/cpu/WmiTemperatureReader.cpp
             windows/readers/cpu/WmiTemperatureReader.hpp
-    )
-
-    target_link_libraries(ny_infrastructure
-            PUBLIC
-            pdh
-            powrprof
-            wbemuuid
+            windows/readers/cpu/KernelCpuTempReader.hpp
+            windows/readers/cpu/KernelCpuTempReader.cpp
     )
 
 endif()
@@ -128,10 +129,15 @@ endif()
 # INCLUDE DIRECTORIES
 # ============================================================
 
+# Diretório raiz do projeto (CMAKE_SOURCE_DIR) contém a pasta include/
+set(SHARED_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
+
 target_include_directories(ny_infrastructure
-        PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}   # mantém includes relativos ao src
+        ${SHARED_INCLUDE_DIR}         # <-- adiciona include/shared.h aqui
 )
+
 
 # ============================================================
 # LINK COM DOMAIN

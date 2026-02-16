@@ -1,7 +1,6 @@
 // NyFusion Monitor
 // Copyright (C) 2026 Nyfari
 // SPDX-License-Identifier: GPL-3.0-or-later
-#pragma once
 /**
  * NyFusion Monitor
  * Copyright (C) 2026 Nyfari
@@ -13,39 +12,60 @@
  * @date 12/02/2026
  */
 #include "ProcessorPowerReader.hpp"
+
 #include <windows.h>
 #include <powrprof.h>
 #include <vector>
 
+#pragma comment(lib, "PowrProf.lib")
+
 namespace ny::infra::windows::reader {
 
-    std::vector<double>
-    ProcessorPowerReader::readCurrentFrequenciesMHz() const {
+    // Definição oficial documentada pela Microsoft
+    typedef struct _PROCESSOR_POWER_INFORMATION {
+        ULONG Number;
+        ULONG MaxMhz;
+        ULONG CurrentMhz;
+        ULONG MhzLimit;
+        ULONG MaxIdleState;
+        ULONG CurrentIdleState;
+    } PROCESSOR_POWER_INFORMATION;
 
-        SYSTEM_INFO sysInfo;
+    ProcessorPowerSample ProcessorPowerReader::read() const {
+        ProcessorPowerSample sample{};
+
+        SYSTEM_INFO sysInfo{};
         GetSystemInfo(&sysInfo);
 
-        ULONG size = sizeof(PROCESSOR_POWER_INFORMATION) *
-                     sysInfo.dwNumberOfProcessors;
+        const ULONG cpuCount = sysInfo.dwNumberOfProcessors;
 
-        std::vector<PROCESSOR_POWER_INFORMATION> buffer(
-            sysInfo.dwNumberOfProcessors
-        );
+        if (cpuCount == 0) {
+            return sample;
+        }
 
-        CallNtPowerInformation(
+        std::vector<PROCESSOR_POWER_INFORMATION> buffer(cpuCount);
+
+        const auto status = CallNtPowerInformation(
             ProcessorInformation,
             nullptr,
             0,
             buffer.data(),
-            size
+            static_cast<ULONG>(sizeof(PROCESSOR_POWER_INFORMATION) * cpuCount)
         );
 
-        std::vector<double> result;
-        result.reserve(buffer.size());
+        if (status != ERROR_SUCCESS) {
+            return sample;
+        }
 
-        for (const auto& p : buffer)
-            result.push_back(static_cast<double>(p.CurrentMhz));
+        double totalMHz = 0.0;
 
-        return result;
+        for (const auto& cpu : buffer) {
+            totalMHz += static_cast<double>(cpu.CurrentMhz);
+        }
+
+        sample.currentMHz = totalMHz / cpuCount;
+
+        return sample;
     }
+
 }

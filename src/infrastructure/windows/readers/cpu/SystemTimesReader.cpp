@@ -1,7 +1,6 @@
 // NyFusion Monitor
 // Copyright (C) 2026 Nyfari
 // SPDX-License-Identifier: GPL-3.0-or-later
-#pragma once
 /**
  * NyFusion Monitor
  * Copyright (C) 2026 Nyfari
@@ -14,22 +13,33 @@
  */
 #include "SystemTimesReader.hpp"
 
+#include <windows.h>
+
 namespace ny::infra::windows::reader {
 
-    uint64_t SystemTimesReader::toUint64(const FILETIME& ft) {
-        return (static_cast<uint64_t>(ft.dwHighDateTime) << 32) |
-               static_cast<uint64_t>(ft.dwLowDateTime);
+    static std::uint64_t toUint64(const FILETIME& ft) {
+        ULARGE_INTEGER uli;
+        uli.LowPart = ft.dwLowDateTime;
+        uli.HighPart = ft.dwHighDateTime;
+        return uli.QuadPart;
     }
 
     SystemTimesSample SystemTimesReader::read() const {
-        FILETIME idle{}, kernel{}, user{};
-        GetSystemTimes(&idle, &kernel, &user);
+        FILETIME idleTime{}, kernelTime{}, userTime{};
 
-        return {
-            .idle   = toUint64(idle),
-            .kernel = toUint64(kernel),
-            .user   = toUint64(user)
-        };
+        if (!GetSystemTimes(&idleTime, &kernelTime, &userTime)) {
+            return {};
+        }
+
+        const auto idle = toUint64(idleTime);
+        const auto kernel = toUint64(kernelTime);
+        const auto user = toUint64(userTime);
+
+        SystemTimesSample sample;
+        sample.idle = idle;
+        sample.total = kernel + user;
+
+        return sample;
     }
+
 }
-#include "SystemTimesReader.hpp"

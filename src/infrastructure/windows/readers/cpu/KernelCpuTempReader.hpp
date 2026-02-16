@@ -8,27 +8,21 @@
  * @file LogicalProcessorReader.hpp
  * Created by
  * @author Marcos Henrique
- * @date 12/02/2026
+ * @date 15/02/2026
  *
  * @brief
  */
 #pragma once
 
-#ifndef NY_FUSION_MONITOR_LOGICALPROCESSORREADER_HPP
-#define NY_FUSION_MONITOR_LOGICALPROCESSORREADER_HPP
-
 #include <optional>
-#include <utility>
 
 namespace ny::infra::windows::reader {
 
-    class LogicalProcessorReader {
+    class KernelCpuTempReader {
     public:
-        std::optional<std::pair<int, int>> readCoreAndThreadCount() const;
+        // -1 = package, >=0 core index
+        // Retorna temperatura em Celsius ou std::nullopt se driver ausente / leitura inválida
+        static std::optional<double> readTemperatureCelsius(int coreIndex = -1);
     };
 
-}
-
-
-#endif
-//NY_FUSION_MONITOR_LOGICALPROCESSORREADER_HPP
+} // namespace ny::infra::windows::reader
