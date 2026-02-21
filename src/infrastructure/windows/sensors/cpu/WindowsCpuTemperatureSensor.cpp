@@ -12,77 +12,132 @@
  * @date 12/02/2026
  */
 #include "WindowsCpuTemperatureSensor.hpp"
+#include "../include/ny/log/Logger.hpp"
 #include "windows/readers/cpu/KernelCpuTempReader.hpp"
-#include "windows/readers/cpu/WmiTemperatureReader.hpp" // seu WMI robusto
-#include "windows/readers/cpu/LogicalProcessorReader.hpp" // para core count
+#include "windows/readers/cpu/WmiTemperatureReader.hpp"
+#include "windows/readers/cpu/LogicalProcessorReader.hpp"
+#include "windows/readers/cpu/ThermGuardCpuReader.hpp"
 #include <optional>
 
 namespace ny::infra::windows::sensor {
 
+    using ny::log::Logger;
     using namespace ny::infra::windows::reader;
 
-    void WindowsCpuTemperatureSensor::update()
-    {
-        // Primeiro: tentar via driver (MSR) por pacote e por core
-        // Obter número de cores físicos (ou threads) para preencher per-core
+    void WindowsCpuTemperatureSensor::update() {
+
+        Logger::log(ny::log::Level::Debug,
+            "WindowsCpuTemperatureSensor", "update() start");
+
         LogicalProcessorReader topoReader;
-        const auto topoOpt = topoReader.readCoreAndThreadCount();
-        int coreCount = 0;
-        if (topoOpt.has_value()) {
-            coreCount = topoOpt->first;
+        auto topoOpt = topoReader.readCoreAndThreadCount();
+        int coreCount = topoOpt.has_value() ? topoOpt->first : 0;
+
+        // ============================================================
+        // 1) PRIORIDADE: THERMGUARD DRIVER
+        // ============================================================
+
+        ThermGuardCpuReader tgReader;
+        auto tgTempOpt = tgReader.readTemperatureCelsius(-1);
+
+        if (tgTempOpt.has_value()) {
+
+            double temp = tgTempOpt.value();
+
+            Logger::log(ny::log::Level::Info,
+                "WindowsCpuTemperatureSensor",
+                "Temperature obtained from ThermGuard driver: "
+                + std::to_string(temp));
+
+            m_averageTemperature = temp;
+            m_perCoreTemperatures.assign(coreCount > 0 ? coreCount : 1, temp);
+
+            Logger::log(ny::log::Level::Debug,
+                "WindowsCpuTemperatureSensor",
+                "update() end (thermguard)");
+
+            return;
         }
 
-        m_perCoreTemperatures.clear();
+        Logger::log(ny::log::Level::Debug,
+            "WindowsCpuTemperatureSensor",
+            "ThermGuard unavailable, trying kernel driver");
 
-        // Tentar pacote via driver
-        const auto packageTempOpt = KernelCpuTempReader::readTemperatureCelsius(-1);
+        // ============================================================
+        // 2) Kernel Reader
+        // ============================================================
+
+        auto packageTempOpt = KernelCpuTempReader::readTemperatureCelsius(-1);
+
         if (packageTempOpt.has_value()) {
-            // Se driver disponível, tentar por-core também
-            if (coreCount > 0) {
-                m_perCoreTemperatures.resize(coreCount, packageTempOpt.value());
-                // tentar ler por-core individualmente (se driver suportar)
-                for (int i = 0; i < coreCount; ++i) {
-                    auto coreTempOpt = KernelCpuTempReader::readTemperatureCelsius(i);
-                    if (coreTempOpt.has_value()) {
-                        m_perCoreTemperatures[i] = coreTempOpt.value();
-                    }
-                }
-            }
-            else {
-                // sem topo info, apenas usar pacote
-                m_perCoreTemperatures.push_back(packageTempOpt.value());
-            }
-            m_averageTemperature = packageTempOpt.value();
+
+            double pkg = packageTempOpt.value();
+
+            Logger::log(ny::log::Level::Info,
+                "WindowsCpuTemperatureSensor",
+                "Kernel package temp = " + std::to_string(pkg));
+
+            m_averageTemperature = pkg;
+            m_perCoreTemperatures.assign(coreCount > 0 ? coreCount : 1, pkg);
+
+            Logger::log(ny::log::Level::Debug,
+                "WindowsCpuTemperatureSensor",
+                "update() end (kernel)");
+
             return;
         }
 
-        // Fallback: WMI robusto (MSAcpi_ThermalZoneTemperature)
-        WmiTemperatureReader wmiReader;
-        const auto wmiTempOpt = wmiReader.readTemperatureCelsius();
+        Logger::log(ny::log::Level::Debug,
+            "WindowsCpuTemperatureSensor",
+            "Kernel unavailable, trying WMI");
+
+        // ============================================================
+        // 3) WMI Fallback
+        // ============================================================
+
+        WmiTemperatureReader wmi;
+        auto wmiTempOpt = wmi.readTemperatureCelsius();
+
         if (wmiTempOpt.has_value()) {
-            double c = wmiTempOpt.value();
-            if (coreCount > 0) {
-                m_perCoreTemperatures.assign(coreCount, c);
-            }
-            else {
-                m_perCoreTemperatures.assign(1, c);
-            }
-            m_averageTemperature = c;
+
+            double t = wmiTempOpt.value();
+
+            Logger::log(ny::log::Level::Info,
+                "WindowsCpuTemperatureSensor",
+                "WMI temp = " + std::to_string(t));
+
+            m_averageTemperature = t;
+            m_perCoreTemperatures.assign(coreCount > 0 ? coreCount : 1, t);
+
+            Logger::log(ny::log::Level::Debug,
+                "WindowsCpuTemperatureSensor",
+                "update() end (wmi)");
+
             return;
         }
 
-        // Nenhuma fonte disponível: manter 0.0 (ou use std::nullopt se preferir)
-        m_perCoreTemperatures.clear();
+        // ============================================================
+        // 4) No source
+        // ============================================================
+
+        Logger::log(ny::log::Level::Warn,
+            "WindowsCpuTemperatureSensor",
+            "No temperature source available; setting 0.0");
+
         m_averageTemperature = 0.0;
+        m_perCoreTemperatures.clear();
+
+        Logger::log(ny::log::Level::Debug,
+            "WindowsCpuTemperatureSensor",
+            "update() end (none)");
     }
 
-    double WindowsCpuTemperatureSensor::readAverageTemperatureCelsius() const
-    {
+
+    double WindowsCpuTemperatureSensor::readAverageTemperatureCelsius() const {
         return m_averageTemperature;
     }
 
-    std::vector<double> WindowsCpuTemperatureSensor::readPerCoreTemperatureCelsius() const
-    {
+    std::vector<double> WindowsCpuTemperatureSensor::readPerCoreTemperatureCelsius() const {
         return m_perCoreTemperatures;
     }
 

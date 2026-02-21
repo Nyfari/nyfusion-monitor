@@ -1,33 +1,30 @@
-// src/common/log/Logger.cpp
+// NyFusion Monitor
+// Copyright (C) 2026 Nyfari
+// SPDX-License-Identifier: GPL-3.0-or-later
+/**
+ * NyFusion Monitor
+ * Copyright (C) 2026 Nyfari
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Header File Name: Logger.hpp
+ * Source File Name: Logger.cpp
+ * Created by
+ * @author Marcos Henrique
+ * @date 16/02/2026
+ */
 #include "../include/ny/log/Logger.hpp"
 #include <fstream>
+#include <mutex>
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <filesystem>
 #include <windows.h>
 
 namespace ny::log {
 
     static std::mutex g_mutex;
-    static std::string g_logFilePath;
     static std::ofstream g_ofs;
-
-    void Logger::init(std::string logFilePath) {
-        std::lock_guard<std::mutex> lk(g_mutex);
-        g_logFilePath = std::move(logFilePath);
-        if (!g_logFilePath.empty()) {
-            g_ofs.open(g_logFilePath, std::ios::app);
-        }
-    }
-
-    void Logger::shutdown() {
-        std::lock_guard<std::mutex> lk(g_mutex);
-        if (g_ofs.is_open()) {
-            g_ofs.flush();
-            g_ofs.close();
-        }
-        g_logFilePath.clear();
-    }
+    static std::string g_path;
 
     static std::string nowIso() {
         using namespace std::chrono;
@@ -50,16 +47,39 @@ namespace ny::log {
         }
     }
 
+    void Logger::init(const std::string& logFilePath) {
+        std::lock_guard<std::mutex> lk(g_mutex);
+        if (!g_ofs.is_open() && !logFilePath.empty()) {
+            g_path = logFilePath;
+            try {
+                std::filesystem::create_directories(std::filesystem::path(g_path).parent_path());
+                g_ofs.open(g_path, std::ios::app);
+            }
+            catch (...) {
+                g_path.clear();
+            }
+        }
+    }
+
+    void Logger::shutdown() {
+        std::lock_guard<std::mutex> lk(g_mutex);
+        if (g_ofs.is_open()) {
+            g_ofs.flush();
+            g_ofs.close();
+        }
+        g_path.clear();
+    }
+
     void Logger::log(Level level, const std::string& tag, const std::string& msg) {
         std::lock_guard<std::mutex> lk(g_mutex);
         std::ostringstream ss;
         ss << nowIso() << " [" << levelToString(level) << "] " << tag << " - " << msg << "\n";
         const std::string out = ss.str();
 
-        // OutputDebugString (visible no DebugView / Visual Studio Output)
+        // OutputDebugString (DebugView / Visual Studio)
         OutputDebugStringA(out.c_str());
 
-        // Arquivo (se aberto)
+        // File
         if (g_ofs.is_open()) {
             g_ofs << out;
             g_ofs.flush();

@@ -97,6 +97,9 @@ if(WIN32)
             windows/readers/cpu/WmiTemperatureReader.hpp
             windows/readers/cpu/KernelCpuTempReader.hpp
             windows/readers/cpu/KernelCpuTempReader.cpp
+            windows/readers/cpu/ThermGuardCpuReader.cpp
+            windows/readers/cpu/ThermGuardCpuReader.hpp
+            windows/readers/cpu/ThermGuardIoctls.hpp
     )
 
 endif()

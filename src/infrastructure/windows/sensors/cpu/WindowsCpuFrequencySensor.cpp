@@ -14,35 +14,58 @@
 #include "WindowsCpuFrequencySensor.hpp"
 #include "windows/readers/cpu/ProcessorPowerReader.hpp"
 #include "windows/readers/cpu/LogicalProcessorReader.hpp"
+#include "windows/readers/cpu/ThermGuardCpuReader.hpp"
 
 namespace ny::infra::windows::sensor {
 
     void WindowsCpuFrequencySensor::update()
     {
-        reader::ProcessorPowerReader powerReader;
         reader::LogicalProcessorReader topologyReader;
-
         const auto topoOpt = topologyReader.readCoreAndThreadCount();
-        const auto sample = powerReader.read();
-
-        m_perThreadFrequencies.clear();
 
         if (!topoOpt.has_value()) {
             m_averageFrequency = 0.0;
+            m_perThreadFrequencies.clear();
             return;
         }
 
         const auto [coreCount, threadCount] = topoOpt.value();
-        const double freq = sample.currentMHz;
 
-        if (freq <= 0.0) {
-            m_averageFrequency = 0.0;
+        // ============================================================
+        // 1) PRIORIDADE: THERMGUARD
+        // ============================================================
+
+        reader::ThermGuardCpuReader tgReader;
+        auto tgDataOpt = tgReader.readCpuInfo();
+
+        if (tgDataOpt.has_value() &&
+            tgDataOpt->clockMHz > 0)
+        {
+            double freq = static_cast<double>(tgDataOpt->clockMHz);
+
+            m_perThreadFrequencies.assign(threadCount, freq);
+            m_averageFrequency = freq;
+
             return;
         }
 
-        m_perThreadFrequencies.assign(threadCount, freq);
-        m_averageFrequency = freq;
+        // ============================================================
+        // 2) FALLBACK: ProcessorPowerReader
+        // ============================================================
+
+        reader::ProcessorPowerReader powerReader;
+        const auto sample = powerReader.read();
+
+        if (sample.currentMHz <= 0.0) {
+            m_averageFrequency = 0.0;
+            m_perThreadFrequencies.clear();
+            return;
+        }
+
+        m_perThreadFrequencies.assign(threadCount, sample.currentMHz);
+        m_averageFrequency = sample.currentMHz;
     }
+
 
     double WindowsCpuFrequencySensor::readAverageFrequencyMHz() const
     {

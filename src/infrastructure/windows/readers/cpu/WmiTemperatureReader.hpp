@@ -5,12 +5,11 @@
  * NyFusion Monitor
  * Copyright (C) 2026 Nyfari
  * SPDX-License-Identifier: GPL-3.0-or-later
- * @file WmiTemperatureReader.hpp
+ * Header File Name: WmiTemperatureReader.hpp
+ * Source File Name: WmiTemperatureReader.cpp
  * Created by
  * @author Marcos Henrique
  * @date 12/02/2026
- *
- * @brief
  */
 #pragma once
 
