@@ -5,12 +5,19 @@ add_library(ny_infrastructure STATIC)
 # ============================================================
 
 target_sources(ny_infrastructure PRIVATE
-        ../common/Logger.cpp
         common/ISensor.hpp
         common/cpu/ICpuFrequencySensor.hpp
         common/cpu/ICpuPowerSensor.hpp
         common/cpu/ICpuTemperatureSensor.hpp
         common/cpu/ICpuUsageSensor.hpp
+        common/gpu/IGpuDriverSensor.hpp
+        common/gpu/IGpuFeatureSensor.hpp
+        common/gpu/IGpuFrequencySensor.hpp
+        common/gpu/IGpuMemorySensor.hpp
+        common/gpu/IGpuPowerSensor.hpp
+        common/gpu/IGpuTemperatureSensor.hpp
+        common/gpu/IGpuUtilizationSensor.hpp
+        common/gpu/IGpuSensor.hpp
         common/IMemorySensor.hpp
 
         stub/factory/StubProviderFactory.cpp
@@ -31,6 +38,8 @@ target_sources(ny_infrastructure PRIVATE
 if(UNIX AND NOT APPLE)
 
     target_sources(ny_infrastructure PRIVATE
+            linux/GpuVendorDetector.hpp
+            linux/GpuVendorDetector.cpp
             linux/factory/LinuxProviderFactory.cpp
             linux/factory/LinuxProviderFactory.hpp
 
@@ -49,9 +58,21 @@ if(UNIX AND NOT APPLE)
             linux/sensors/cpu/LinuxCpuUsageSensor.hpp
             linux/sensors/ram/LinuxMemorySensor.cpp
             linux/sensors/ram/LinuxMemorySensor.hpp
+            linux/sensors/gpu/LinuxRadeonGpuSensor.cpp
+            linux/sensors/gpu/LinuxRadeonGpuSensor.hpp
+            linux/sensors/gpu/LinuxIntelGpuSensor.cpp
+            linux/sensors/gpu/LinuxIntelGpuSensor.hpp
+            linux/sensors/gpu/LinuxNvidiaGpuSensor.cpp
+            linux/sensors/gpu/LinuxNvidiaGpuSensor.hpp
 
             linux/readers/ProcStatReader.cpp
             linux/readers/ProcStatReader.hpp
+            linux/readers/IntelReader.cpp
+            linux/readers/IntelReader.hpp
+            linux/readers/RadeonReader.cpp
+            linux/readers/RadeonReader.hpp
+            linux/readers/NvidiaReader.cpp
+            linux/readers/NvidiaReader.hpp
     )
 
 endif()
@@ -63,6 +84,7 @@ endif()
 if(WIN32)
 
     target_sources(ny_infrastructure PRIVATE
+            ../common/Logger.cpp
             windows/factory/WindowsProviderFactory.cpp
             windows/factory/WindowsProviderFactory.hpp
 

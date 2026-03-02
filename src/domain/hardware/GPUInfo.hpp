@@ -7,27 +7,35 @@
  *
  * @brief
  */
-#include <string>
 #include <cstdint>
+#include <optional>
+#include <string>
+#include <vector>
 
-namespace ny::domain::gpu
+namespace ny::domain::hardware
 {
-    class GPUInfo final
-    {
-        public:
-            GPUInfo(
-                std::string vendor,
-                std::string model,
-                std::uint64_t vramBytes
-                );
+    struct GPUInfo {
+        // Identificação
+        std::string vendor;           // "AMD", "NVIDIA", "Intel"
+        std::string model;            // "RADEON RX 7900 XTX", "RTX 4090", etc.
 
-            [[nodiscard]] const std::string& vendor() const noexcept;
-            [[nodiscard]] const std::string& model() const noexcept;
-            [[nodiscard]] std::uint64_t vramBytes() const noexcept;
+        // Memória (valores derivados para conveniência)
+        std::uint64_t vramTotalBytes;
+        std::uint32_t vramTotalMB;    // = vramTotalBytes / (1024 * 1024)
+        std::uint32_t vramTotalGB;    // = vramTotalBytes / (1024 * 1024 * 1024)
 
-    private:
-        const std::string m_vendor;
-        const std::string m_model;
-        const std::uint64_t m_vramBytes;
+        // Métricas opcionais (podem não estar disponíveis)
+        std::optional<std::uint64_t> vramUsedMB;
+        std::optional<std::uint64_t> vramUsedGB;
+        std::optional<float> utilizationPercent;    // 0.0 - 100.0
+        std::optional<float> temperatureCelsius;
+        std::optional<std::uint32_t> frequencyMHz;
+        std::optional<float> powerWatts;
+
+        // Driver
+        std::string driverVersion;                  // "22.40.1", etc.
+
+        // Capabilities (extensível para futuro)
+        std::vector<std::string> supportedFeatures; // ["Ray Tracing", "DLSS", etc.]
     };
 }

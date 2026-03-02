@@ -14,6 +14,6 @@ namespace ny::domain::providers {
     class CPUProvider {
     public:
         virtual ~CPUProvider() = default;
-        virtual ny::domain::hardware::CPUInfo collect() = 0;
+        virtual hardware::CPUInfo collect() = 0;
     };
 }

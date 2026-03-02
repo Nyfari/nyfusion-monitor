@@ -15,6 +15,6 @@ namespace ny::domain::providers
     {
         public:
             virtual ~GPUProvider() = default;
-            virtual gpu::GPUInfo collectGPUInfo() = 0;
+            virtual hardware::GPUInfo collect() = 0;
     };
 }
