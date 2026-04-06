@@ -21,6 +21,8 @@
   */
 
 #include "../domain/providers/MemoryProvider.hpp"
+#include "common/IMemorySensor.hpp"
+#include <memory>
 
 namespace ny::infra::windows {
 
@@ -28,7 +30,15 @@ namespace ny::infra::windows {
         : public ny::domain::providers::MemoryProvider
     {
     public:
+        WindowsMemoryProvider();
+        explicit WindowsMemoryProvider(
+            std::unique_ptr<ny::infra::common::IMemorySensor> memorySensor
+        );
+
         ny::domain::hardware::MemoryInfo collect() const override;
+
+    private:
+        mutable std::unique_ptr<ny::infra::common::IMemorySensor> m_memorySensor;
     };
 
 } // namespace ny::infra::windows

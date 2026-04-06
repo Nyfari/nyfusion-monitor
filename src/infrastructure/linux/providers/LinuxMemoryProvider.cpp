@@ -6,39 +6,28 @@
  */
 #include "LinuxMemoryProvider.hpp"
 #include "linux/sensors/ram/LinuxMemorySensor.hpp"
-#include "common/IMemorySensor.hpp"
 
 namespace ny::infra::linux
 {
-    std::vector<std::unique_ptr<ny::infra::common::ISensor>>
-    LinuxMemoryProvider::initSensors() const
+    LinuxMemoryProvider::LinuxMemoryProvider()
+        : LinuxMemoryProvider(std::make_unique<sensor::LinuxMemorySensor>())
     {
-        std::vector<std::unique_ptr<ny::infra::common::ISensor>> sensors;
-        sensors.push_back(std::make_unique<sensor::LinuxMemorySensor>());
-        return sensors;
+    }
+
+    LinuxMemoryProvider::LinuxMemoryProvider(
+        std::unique_ptr<ny::infra::common::IMemorySensor> memorySensor
+    )
+        : m_memorySensor(std::move(memorySensor))
+    {
     }
 
     ny::domain::hardware::MemoryInfo LinuxMemoryProvider::collect() const {
-        using namespace ny::infra::common;
-        using namespace ny::domain::hardware;
+        m_memorySensor->update();
 
-        // Cria MemoryInfo com totalBytes 0 (ou você pode inicializar com memSensor->readTotalMemory() direto)
-        MemoryInfo info;
-
-        // Inicializa sensores
-        auto sensors = initSensors();
-        for (auto& sensor : sensors)
-            sensor->update();
-
-        // Lê o sensor de memória
-        auto memSensor = dynamic_cast<IMemorySensor*>(sensors[0].get());
-        if (memSensor) {
-            info = MemoryInfo(memSensor->readTotalMemory()); // seta total
-            info.setUsedBytes(memSensor->readUsedMemory());
-            info.setFreeBytes(memSensor->readFreeMemory());
-            info.setUsagePercent(memSensor->readUsagePercent());
-        }
-
+        ny::domain::hardware::MemoryInfo info(m_memorySensor->readTotalMemory());
+        info.setUsedBytes(m_memorySensor->readUsedMemory());
+        info.setFreeBytes(m_memorySensor->readFreeMemory());
+        info.setUsagePercent(m_memorySensor->readUsagePercent());
         return info;
     }
 }

@@ -12,29 +12,9 @@
  */
 #pragma once
 
-#include "IGpuSensor.hpp"
+#include "IGpuUsageSensor.hpp"
 
 namespace ny::infra::common::gpu
 {
-    /**
-     * @brief Interface para leitura de utilização da GPU
-     *
-     * Responsável por expor percentual de carga (0.0 - 100.0).
-     *
-     * @note Nem todos os drivers expõem essa métrica em tempo real.
-     */
-    class IGpuUtilizationSensor : public virtual IGpuSensor
-    {
-    public:
-        virtual ~IGpuUtilizationSensor() = default;
-
-        /**
-         * @brief Retorna percentual de utilização da GPU
-         *
-         * @return Utilização em % (0.0 - 100.0), ou std::nullopt se indisponível
-         * @note Alguns drivers não monitoram utilização.
-         */
-        [[nodiscard]] virtual std::optional<float>
-        readUtilizationPercent() const noexcept = 0;
-    };
+    using IGpuUtilizationSensor = IGpuUsageSensor;
 } // namespace infrastructure::gpu

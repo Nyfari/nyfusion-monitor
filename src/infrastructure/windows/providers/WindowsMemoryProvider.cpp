@@ -22,24 +22,27 @@
 
 namespace ny::infra::windows {
 
+    WindowsMemoryProvider::WindowsMemoryProvider()
+        : WindowsMemoryProvider(std::make_unique<sensor::WindowsMemorySensor>())
+    {
+    }
+
+    WindowsMemoryProvider::WindowsMemoryProvider(
+        std::unique_ptr<ny::infra::common::IMemorySensor> memorySensor
+    )
+        : m_memorySensor(std::move(memorySensor))
+    {
+    }
+
     ny::domain::hardware::MemoryInfo
         WindowsMemoryProvider::collect() const {
 
-        using namespace ny::infra::windows::sensor;
-        using namespace ny::infra::common;
-        using namespace ny::domain::hardware;
+        m_memorySensor->update();
 
-        WindowsMemorySensor memSensor;
-
-        memSensor.update();
-
-        MemoryInfo info;
-
-        info = MemoryInfo(memSensor.readTotalMemory());
-        info.setUsedBytes(memSensor.readUsedMemory());
-        info.setFreeBytes(memSensor.readFreeMemory());
-        info.setUsagePercent(memSensor.readUsagePercent());
-
+        ny::domain::hardware::MemoryInfo info(m_memorySensor->readTotalMemory());
+        info.setUsedBytes(m_memorySensor->readUsedMemory());
+        info.setFreeBytes(m_memorySensor->readFreeMemory());
+        info.setUsagePercent(m_memorySensor->readUsagePercent());
         return info;
     }
 

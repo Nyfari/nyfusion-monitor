@@ -20,33 +20,39 @@
 #pragma once
 
 #include <memory>
-#include <string>
 
 #include "../domain/hardware/CPUInfo.hpp"
 #include "../domain/providers/CPUProvider.hpp"
 
+#include "common/cpu/ICpuFrequencySensor.hpp"
+#include "common/cpu/ICpuTemperatureSensor.hpp"
+#include "common/cpu/ICpuUsageSensor.hpp"
+#include "windows/sensors/cpu/WindowsCpuInfoSensor.hpp"
 #include "windows/sensors/cpu/WindowsCpuFrequencySensor.hpp"
 #include "windows/sensors/cpu/WindowsCpuUsageSensor.hpp"
 #include "windows/sensors/cpu/WindowsCpuTemperatureSensor.hpp"
-#include "windows/readers/cpu/RegistryCpuReader.hpp"
 
 namespace ny::infra::windows {
 
     class WindowsCPUProvider final : public ny::domain::providers::CPUProvider {
     public:
-        WindowsCPUProvider() = default;
+        WindowsCPUProvider();
+        WindowsCPUProvider(
+            std::unique_ptr<ny::infra::windows::sensor::WindowsCpuInfoSensor> infoSensor,
+            std::unique_ptr<ny::infra::common::ICpuFrequencySensor> frequencySensor,
+            std::unique_ptr<ny::infra::common::ICpuUsageSensor> usageSensor,
+            std::unique_ptr<ny::infra::common::ICpuTemperatureSensor> temperatureSensor
+        );
+
         ~WindowsCPUProvider() override = default;
 
         ny::domain::hardware::CPUInfo collect() override;
 
     private:
-        ny::infra::windows::sensor::WindowsCpuFrequencySensor m_frequencySensor;
-        ny::infra::windows::sensor::WindowsCpuUsageSensor m_usageSensor;
-        ny::infra::windows::sensor::WindowsCpuTemperatureSensor m_temperatureSensor;
-
-        static std::string readCpuName();
-        static int countCores();
-        static int countThreads();
+        std::unique_ptr<ny::infra::windows::sensor::WindowsCpuInfoSensor> m_infoSensor;
+        std::unique_ptr<ny::infra::common::ICpuFrequencySensor> m_frequencySensor;
+        std::unique_ptr<ny::infra::common::ICpuUsageSensor> m_usageSensor;
+        std::unique_ptr<ny::infra::common::ICpuTemperatureSensor> m_temperatureSensor;
     };
 
 } // namespace ny::infra::windows

@@ -71,5 +71,15 @@ namespace ny::infra::common::gpu
          * @note Sempre disponível. Nunca zero.
          */
         [[nodiscard]] virtual std::uint64_t readVramTotalBytes() const noexcept = 0;
+
+        /**
+         * @brief Retorna VRAM total em MB
+         */
+        [[nodiscard]] virtual std::uint32_t readVramTotalMB() const noexcept = 0;
+
+        /**
+         * @brief Retorna VRAM total em GB
+         */
+        [[nodiscard]] virtual std::uint32_t readVramTotalGB() const noexcept = 0;
     };
 } // namespace infrastructure::gpu

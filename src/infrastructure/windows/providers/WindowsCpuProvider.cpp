@@ -17,58 +17,29 @@
 
 #include "WindowsCPUProvider.hpp"
 
-#include <thread>
 #include <algorithm>
-#include <chrono>
-#include <vector>
-#include <cstdint>
-#include <limits>
-
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
 
 namespace ny::infra::windows {
 
-    std::string WindowsCPUProvider::readCpuName()
-    {
-        ny::infra::windows::reader::RegistryCpuReader localReader;
-        const auto nameOpt = localReader.readProcessorName();
-        return nameOpt.value_or(std::string{});
+    WindowsCPUProvider::WindowsCPUProvider()
+        : WindowsCPUProvider(
+            std::make_unique<ny::infra::windows::sensor::WindowsCpuInfoSensor>(),
+            std::make_unique<ny::infra::windows::sensor::WindowsCpuFrequencySensor>(),
+            std::make_unique<ny::infra::windows::sensor::WindowsCpuUsageSensor>(),
+            std::make_unique<ny::infra::windows::sensor::WindowsCpuTemperatureSensor>()
+        ) {
     }
 
-    int WindowsCPUProvider::countCores()
-    {
-        DWORD len = 0;
-        // primeira chamada para obter o tamanho necessário (em bytes)
-        BOOL ok = GetLogicalProcessorInformation(nullptr, &len);
-        if (!ok && GetLastError() != ERROR_INSUFFICIENT_BUFFER) return 0;
-
-        if (len == 0) return 0;
-
-        std::vector<uint8_t> buffer(len);
-        PSYSTEM_LOGICAL_PROCESSOR_INFORMATION info = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION>(buffer.data());
-
-        if (!GetLogicalProcessorInformation(info, &len)) return 0;
-
-        const DWORD entrySize = static_cast<DWORD>(sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION));
-        if (entrySize == 0) return 0;
-        const DWORD count = len / entrySize;
-
-        int physicalCores = 0;
-        for (DWORD i = 0; i < count; ++i) {
-            if (info[i].Relationship == RelationProcessorCore) {
-                physicalCores++;
-            }
-        }
-        return physicalCores;
-    }
-
-    int WindowsCPUProvider::countThreads()
-    {
-        const unsigned int threads = std::thread::hardware_concurrency();
-        return threads > 0 ? static_cast<int>(threads) : 0;
+    WindowsCPUProvider::WindowsCPUProvider(
+        std::unique_ptr<ny::infra::windows::sensor::WindowsCpuInfoSensor> infoSensor,
+        std::unique_ptr<ny::infra::common::ICpuFrequencySensor> frequencySensor,
+        std::unique_ptr<ny::infra::common::ICpuUsageSensor> usageSensor,
+        std::unique_ptr<ny::infra::common::ICpuTemperatureSensor> temperatureSensor
+    )
+        : m_infoSensor(std::move(infoSensor))
+        , m_frequencySensor(std::move(frequencySensor))
+        , m_usageSensor(std::move(usageSensor))
+        , m_temperatureSensor(std::move(temperatureSensor)) {
     }
 
     ny::domain::hardware::CPUInfo WindowsCPUProvider::collect()
@@ -77,27 +48,27 @@ namespace ny::infra::windows {
 
         CPUInfo info{};
 
-        info.name = readCpuName();
-        info.coreCount = countCores();
-        info.threadCount = countThreads();
+        m_infoSensor->update();
+        m_frequencySensor->update();
+        m_usageSensor->update();
+        m_temperatureSensor->update();
 
-        m_frequencySensor.update();
-        m_usageSensor.update();
-        m_temperatureSensor.update();
+        info.name = m_infoSensor->readName();
+        info.coreCount = m_infoSensor->readCoreCount();
+        info.threadCount = m_infoSensor->readThreadCount();
+        info.temperatureCelsius = m_temperatureSensor->readAverageTemperatureCelsius();
+        info.averageFrequencyMHz = m_frequencySensor->readAverageFrequencyMHz();
+        info.usagePercent = m_usageSensor->readTotalUsagePercent();
+        info.powerWatts = std::nullopt;
 
-        const auto frequencies = m_frequencySensor.readPerThreadFrequencyMHz();
-        const auto usage = m_usageSensor.readPerThreadUsagePercent();
-
-        info.temperatureCelsius = m_temperatureSensor.readAverageTemperatureCelsius();
+        const auto frequencies = m_frequencySensor->readPerThreadFrequencyMHz();
+        const auto usage = m_usageSensor->readPerThreadUsagePercent();
 
         // Evitar std::min com initializer_list para prevenir ambiguidade
         int threads = info.threadCount;
         threads = std::min(threads, static_cast<int>(frequencies.size()));
         threads = std::min(threads, static_cast<int>(usage.size()));
         if (threads < 0) threads = 0;
-
-        double freqSum = 0.0;
-        double usageSum = 0.0;
 
         info.threads.clear();
         info.threads.reserve(static_cast<size_t>(threads));
@@ -110,14 +81,7 @@ namespace ny::infra::windows {
             t.frequencyMHz = frequencies[i];
             t.usagePercent = usage[i];
             info.threads.push_back(t);
-
-            freqSum += frequencies[i];
-            usageSum += usage[i];
         }
-
-        info.averageFrequencyMHz = threads > 0 ? freqSum / threads : 0.0;
-        info.usagePercent = threads > 0 ? usageSum / threads : 0.0;
-        info.powerWatts = std::nullopt;
 
         return info;
     }

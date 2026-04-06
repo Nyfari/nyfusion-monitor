@@ -17,7 +17,14 @@
 #define NY_FUSION_MONITOR_LINUXGPUPROVIDER_HPP
 
 #include "../../../domain/providers/GPUProvider.hpp"
-#include "common/ISensor.hpp"
+#include "common/gpu/IGpuDriverSensor.hpp"
+#include "common/gpu/IGpuFeatureSensor.hpp"
+#include "common/gpu/IGpuFrequencySensor.hpp"
+#include "common/gpu/IGpuMemorySensor.hpp"
+#include "common/gpu/IGpuPowerSensor.hpp"
+#include "common/gpu/IGpuSensor.hpp"
+#include "common/gpu/IGpuTemperatureSensor.hpp"
+#include "common/gpu/IGpuUsageSensor.hpp"
 
 #include <memory>
 
@@ -25,11 +32,29 @@ namespace ny::infra::linux {
 
     class LinuxGPUProvider final : public ny::domain::providers::GPUProvider {
     public:
+        LinuxGPUProvider() = default;
+        LinuxGPUProvider(
+            std::shared_ptr<ny::infra::common::gpu::IGpuSensor> sensor,
+            std::shared_ptr<ny::infra::common::gpu::IGpuTemperatureSensor> temperatureSensor = {},
+            std::shared_ptr<ny::infra::common::gpu::IGpuUsageSensor> usageSensor = {},
+            std::shared_ptr<ny::infra::common::gpu::IGpuMemorySensor> memorySensor = {},
+            std::shared_ptr<ny::infra::common::gpu::IGpuFrequencySensor> frequencySensor = {},
+            std::shared_ptr<ny::infra::common::gpu::IGpuPowerSensor> powerSensor = {},
+            std::shared_ptr<ny::infra::common::gpu::IGpuDriverSensor> driverSensor = {},
+            std::shared_ptr<ny::infra::common::gpu::IGpuFeatureSensor> featureSensor = {}
+        );
+
         ny::domain::hardware::GPUInfo collect() override;
 
     private:
-        // Inicializa sensor apropriado baseado no vendor
-        std::unique_ptr<ny::infra::common::ISensor> initSensor() const;
+        std::shared_ptr<ny::infra::common::gpu::IGpuSensor> m_sensor;
+        std::shared_ptr<ny::infra::common::gpu::IGpuTemperatureSensor> m_temperatureSensor;
+        std::shared_ptr<ny::infra::common::gpu::IGpuUsageSensor> m_usageSensor;
+        std::shared_ptr<ny::infra::common::gpu::IGpuMemorySensor> m_memorySensor;
+        std::shared_ptr<ny::infra::common::gpu::IGpuFrequencySensor> m_frequencySensor;
+        std::shared_ptr<ny::infra::common::gpu::IGpuPowerSensor> m_powerSensor;
+        std::shared_ptr<ny::infra::common::gpu::IGpuDriverSensor> m_driverSensor;
+        std::shared_ptr<ny::infra::common::gpu::IGpuFeatureSensor> m_featureSensor;
     };
 
 } // namespace ny::infra::linux

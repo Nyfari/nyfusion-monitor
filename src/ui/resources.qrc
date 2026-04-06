@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/styles">
+        <file>qt/theme.qss</file>
+    </qresource>
+</RCC>
+

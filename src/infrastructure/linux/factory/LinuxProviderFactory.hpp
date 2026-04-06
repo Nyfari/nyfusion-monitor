@@ -1,13 +1,25 @@
 #pragma once
-/**
- * @file LinuxProviderFactory.hpp
- * Created by
- * @author Marcos Henrique
- * @date 03/01/2026
- *
- * @brief
- */
-#ifndef NY_FUSION_MONITOR_LINUXPROVIDERFACTORY_HPP
-#define NY_FUSION_MONITOR_LINUXPROVIDERFACTORY_HPP
 
-#endif //NY_FUSION_MONITOR_LINUXPROVIDERFACTORY_HPP
+#include <memory>
+
+namespace ny::domain::providers {
+    class CPUProvider;
+    class MemoryProvider;
+    class GPUProvider;
+}
+
+namespace ny::infra::linux {
+
+    class LinuxProviderFactory final {
+    public:
+        [[nodiscard]] std::unique_ptr<ny::domain::providers::CPUProvider>
+        createCpuProvider() const;
+
+        [[nodiscard]] std::unique_ptr<ny::domain::providers::MemoryProvider>
+        createMemoryProvider() const;
+
+        [[nodiscard]] std::unique_ptr<ny::domain::providers::GPUProvider>
+        createGpuProvider() const;
+    };
+
+} // namespace ny::infra::linux

@@ -10,8 +10,7 @@
 #ifndef NY_FUSION_MONITOR_LINUXMEMORYPROVIDER_HPP
 #define NY_FUSION_MONITOR_LINUXMEMORYPROVIDER_HPP
 #include "../domain/providers/MemoryProvider.hpp"
-#include "common/ISensor.hpp"
-#include <vector>
+#include "common/IMemorySensor.hpp"
 #include <memory>
 
 namespace ny::infra::linux
@@ -20,10 +19,15 @@ namespace ny::infra::linux
         : public ny::domain::providers::MemoryProvider
     {
     public:
+        LinuxMemoryProvider();
+        explicit LinuxMemoryProvider(
+            std::unique_ptr<ny::infra::common::IMemorySensor> memorySensor
+        );
+
         ny::domain::hardware::MemoryInfo collect() const override;
 
     private:
-        std::vector<std::unique_ptr<common::ISensor>> initSensors() const;
+        mutable std::unique_ptr<ny::infra::common::IMemorySensor> m_memorySensor;
     };
 }
 #endif //NY_FUSION_MONITOR_LINUXMEMORYPROVIDER_HPP

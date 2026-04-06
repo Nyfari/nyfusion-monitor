@@ -37,5 +37,17 @@ namespace ny::infra::common::gpu
          */
         [[nodiscard]] virtual std::optional<std::uint64_t>
         readVramUsedBytes() const noexcept = 0;
+
+        /**
+         * @brief Retorna VRAM usada em MB
+         */
+        [[nodiscard]] virtual std::optional<std::uint64_t>
+        readVramUsedMB() const noexcept = 0;
+
+        /**
+         * @brief Retorna VRAM usada em GB
+         */
+        [[nodiscard]] virtual std::optional<std::uint64_t>
+        readVramUsedGB() const noexcept = 0;
     };
 } // namespace infrastructure::gpu

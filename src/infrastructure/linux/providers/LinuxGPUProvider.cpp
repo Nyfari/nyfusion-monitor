@@ -13,90 +13,71 @@
  */
 #include "LinuxGPUProvider.hpp"
 
-#include "../GpuVendorDetector.hpp"
-#include "../sensors/gpu/LinuxRadeonGpuSensor.hpp"
-
 namespace ny::infra::linux {
 
-    std::unique_ptr<ny::infra::common::ISensor> LinuxGPUProvider::initSensor() const {
-        GpuVendor vendor = GpuVendorDetector::detectVendor();
-
-        switch (vendor) {
-            case GpuVendor::AMD:
-                return std::make_unique<sensor::LinuxRadeonGpuSensor>();
-            case GpuVendor::NVIDIA:
-                // TODO: Implementar LinuxNvidiaGpuSensor
-                return nullptr;
-            case GpuVendor::Intel:
-                // TODO: Implementar LinuxIntelGpuSensor
-                return nullptr;
-            case GpuVendor::Unknown:
-            default:
-                return nullptr;
-        }
+    LinuxGPUProvider::LinuxGPUProvider(
+        std::shared_ptr<ny::infra::common::gpu::IGpuSensor> sensor,
+        std::shared_ptr<ny::infra::common::gpu::IGpuTemperatureSensor> temperatureSensor,
+        std::shared_ptr<ny::infra::common::gpu::IGpuUsageSensor> usageSensor,
+        std::shared_ptr<ny::infra::common::gpu::IGpuMemorySensor> memorySensor,
+        std::shared_ptr<ny::infra::common::gpu::IGpuFrequencySensor> frequencySensor,
+        std::shared_ptr<ny::infra::common::gpu::IGpuPowerSensor> powerSensor,
+        std::shared_ptr<ny::infra::common::gpu::IGpuDriverSensor> driverSensor,
+        std::shared_ptr<ny::infra::common::gpu::IGpuFeatureSensor> featureSensor
+    )
+        : m_sensor(std::move(sensor))
+        , m_temperatureSensor(std::move(temperatureSensor))
+        , m_usageSensor(std::move(usageSensor))
+        , m_memorySensor(std::move(memorySensor))
+        , m_frequencySensor(std::move(frequencySensor))
+        , m_powerSensor(std::move(powerSensor))
+        , m_driverSensor(std::move(driverSensor))
+        , m_featureSensor(std::move(featureSensor)) {
     }
 
     ny::domain::hardware::GPUInfo LinuxGPUProvider::collect() {
         using namespace ny::domain::hardware;
 
         GPUInfo info{};
-
-        // Instancia sensor apropriado
-        auto sensor = initSensor();
-        if (!sensor) {
-            return info;  // Retorna vazio se nenhuma GPU detectada
-        }
-
-        // Atualiza sensor (lê sysfs)
-        sensor->update();
-
-        // Cast seguro para o sensor específico de GPU
-        auto* gpuSensor = dynamic_cast<sensor::LinuxRadeonGpuSensor*>(sensor.get());
-        if (!gpuSensor) {
+        if (!m_sensor) {
             return info;
         }
 
-        // Identificação
-        info.vendor = gpuSensor->getVendor();
-        info.model = gpuSensor->getModel();
+        m_sensor->update();
+        info.vendor = m_sensor->readVendor();
+        info.model = m_sensor->readModel();
+        info.vramTotalBytes = m_sensor->readVramTotalBytes();
+        info.vramTotalMB = m_sensor->readVramTotalMB();
+        info.vramTotalGB = m_sensor->readVramTotalGB();
 
-        // VRAM total
-        uint64_t vramBytes = gpuSensor->getVramTotalBytes();
-        info.vramTotalBytes = vramBytes;
-        info.vramTotalMB = vramBytes / (1024 * 1024);
-        info.vramTotalGB = vramBytes / (1024 * 1024 * 1024);
-
-        // VRAM em uso (opcional)
-        uint64_t vramUsedBytes = gpuSensor->getVramUsedBytes();
-        if (vramUsedBytes > 0) {
-            info.vramUsedMB = vramUsedBytes / (1024 * 1024);
-            info.vramUsedGB = vramUsedBytes / (1024 * 1024 * 1024);
+        if (m_memorySensor) {
+            info.vramUsedMB = m_memorySensor->readVramUsedMB();
+            info.vramUsedGB = m_memorySensor->readVramUsedGB();
         }
 
-        // Métricas opcionais
-        float utilization = gpuSensor->getUtilizationPercent();
-        if (utilization > 0.0f) {
-            info.utilizationPercent = utilization;
+        if (m_usageSensor) {
+            info.utilizationPercent = m_usageSensor->readUsagePercent();
         }
 
-        float temperature = gpuSensor->getTemperatureCelsius();
-        if (temperature > 0.0f) {
-            info.temperatureCelsius = temperature;
+        if (m_temperatureSensor) {
+            info.temperatureCelsius = m_temperatureSensor->readTemperatureCelsius();
         }
 
-        uint32_t frequency = gpuSensor->getFrequencyMHz();
-        if (frequency > 0) {
-            info.frequencyMHz = frequency;
+        if (m_frequencySensor) {
+            info.frequencyMHz = m_frequencySensor->readFrequencyMHz();
         }
 
-        float power = gpuSensor->getPowerWatts();
-        if (power > 0.0f) {
-            info.powerWatts = power;
+        if (m_powerSensor) {
+            info.powerWatts = m_powerSensor->readPowerWatts();
         }
 
-        // Driver e features
-        info.driverVersion = gpuSensor->getDriverVersion();
-        info.supportedFeatures = gpuSensor->getSupportedFeatures();
+        if (m_driverSensor) {
+            info.driverVersion = m_driverSensor->readDriverVersion();
+        }
+
+        if (m_featureSensor) {
+            info.supportedFeatures = m_featureSensor->readSupportedFeatures();
+        }
 
         return info;
     }

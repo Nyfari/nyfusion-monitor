@@ -21,13 +21,21 @@ namespace ny::infra::linux::sensor {
         = default;
 
     void LinuxCpuUsageSensor::update() {
-        prevTotal   = currTotal;
+        if (!hasPrevious) {
+            currTotal = reader.readTotal();
+            currPerCpu = reader.readPerCpu();
+
+            prevTotal = currTotal;
+            prevPerCpu = currPerCpu;
+            hasPrevious = true;
+            return;
+        }
+
+        prevTotal = currTotal;
         prevPerCpu = currPerCpu;
 
-        currTotal   = reader.readTotal();
+        currTotal = reader.readTotal();
         currPerCpu = reader.readPerCpu();
-
-        hasPrevious = true;
     }
 
     double LinuxCpuUsageSensor::calculateUsage(const Sample& a,

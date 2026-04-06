@@ -1,0 +1,326 @@
+/*
+ * theme.qss — NyFusion Monitor v2
+ * Dark futurista premium: acento ciano (GPU) + laranja (CPU).
+ * Author: Marcos Henrique
+ */
+
+/* ── Reset global ─────────────────────────────────────────────────────────── */
+* {
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: #C0D0E0;
+    font-family: "Inter", "Segoe UI", "Ubuntu", sans-serif;
+    font-size: 11px;
+    outline: none;
+}
+
+/* ── Janela principal ──────────────────────────────────────────────────────── */
+QMainWindow, #mainSurface {
+    background-color: #070D15;
+}
+
+/* ── Topbar ────────────────────────────────────────────────────────────────── */
+#topbar {
+    background-color: #0B1320;
+    border-bottom: 1px solid #14223A;
+}
+
+#topbarAccent {
+    color: #00DDFF;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+#topbarTitle {
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+#topbarStatus {
+    color: #3A5060;
+    font-size: 10px;
+}
+
+#topbarClock {
+    color: #00CCEE;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    background-color: #081828;
+    border-radius: 4px;
+    padding: 2px 8px;
+    border: 1px solid #0C2A3E;
+}
+
+#topbarVersion {
+    color: #1E3040;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────────────────────── */
+#sidebar {
+    background-color: #08111E;
+}
+
+#sidebarDivider {
+    background-color: #111E2E;
+}
+
+#sidebarBadge {
+    color: #00CCEE;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    background-color: #0A1E32;
+    border-radius: 7px;
+    border: 1px solid #0D2E48;
+    margin: 0 8px;
+    padding: 5px 0;
+}
+
+#sideBtn {
+    background-color: transparent;
+    color: #283C50;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    border-radius: 6px;
+    margin: 2px 6px;
+    padding: 6px 0;
+    text-align: center;
+    line-height: 1.5;
+}
+
+#sideBtn:hover {
+    background-color: #0C1D2E;
+    color: #4A7890;
+}
+
+#sideBtn:checked {
+    background-color: #071623;
+    color: #00CCEE;
+    border-left: 2px solid #00CCEE;
+    margin-left: 6px;
+    padding-left: 4px;
+}
+
+/* ── Conteúdo ──────────────────────────────────────────────────────────────── */
+#contentArea, #dashboardPage {
+    background-color: #070D15;
+}
+
+/* ── Painel (frame principal de GPU e CPU) ────────────────────────────────── */
+#panelFrame {
+    background-color: #0B1826;
+    border-radius: 10px;
+    border: 1px solid #182C40;
+}
+
+/* Tag "GPU" */
+#panelTag {
+    color: #00CCEE;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+/* Tag "CPU" */
+#panelTagCpu {
+    color: #FF9A00;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+#panelName {
+    color: #4E7080;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+#panelMenuIcon {
+    color: #1A3040;
+    font-size: 15px;
+}
+
+#panelMenuIconCpu {
+    color: #281C00;
+    font-size: 15px;
+}
+
+#panelSeparator {
+    background-color: #142030;
+    max-height: 1px;
+    min-height: 1px;
+}
+
+/* ── Métricas (labels de título/valor nos painéis) ───────────────────────── */
+#metricTitle {
+    color: #284050;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+#metricValue {
+    color: #00BBDD;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#metricValueCpu {
+    color: #FF9A00;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* ── Load bar section ─────────────────────────────────────────────────────── */
+#loadPercent {
+    color: #A8C0D8;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ── Cards de informação (RAM, System Power) ─────────────────────────────── */
+#infoCard {
+    background-color: #081420;
+    border-radius: 8px;
+    border: 1px solid #182C40;
+}
+
+#infoCardValue {
+    color: #4E7080;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* "580W" — valor dominante no card SYSTEM POWER */
+#infoCardValueBig {
+    color: #D8ECFF;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* ── Área dos gráficos ────────────────────────────────────────────────────── */
+#chartArea {
+    background-color: #070D15;
+}
+
+#chartFrame {
+    background-color: #0A1420;
+    border-radius: 10px;
+    border: 1px solid #182C40;
+}
+
+/* ── Sliders de tuning ────────────────────────────────────────────────────── */
+#sliderLabel {
+    color: #304858;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+#sliderValue {
+    color: #506070;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+QSlider#tuningSlider {
+    height: 16px;
+}
+
+QSlider#tuningSlider::groove:horizontal {
+    height: 3px;
+    background: #0C1C2C;
+    border-radius: 2px;
+}
+
+QSlider#tuningSlider::sub-page:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #00364E, stop:1 #00AACC);
+    border-radius: 2px;
+    height: 3px;
+}
+
+QSlider#tuningSlider::handle:horizontal {
+    background: #00BBDD;
+    border: 2px solid #070D15;
+    width: 10px;
+    height: 10px;
+    margin: -4px 0;
+    border-radius: 5px;
+}
+
+QSlider#tuningSlider::handle:horizontal:hover {
+    background: #33CCEE;
+}
+
+/* ── Botões Apply / Reset ─────────────────────────────────────────────────── */
+QPushButton#applyBtn {
+    background-color: #009BBB;
+    color: #020810;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    border-radius: 5px;
+    padding: 0 10px;
+    min-height: 28px;
+}
+
+QPushButton#applyBtn:hover {
+    background-color: #00AACC;
+}
+
+QPushButton#applyBtn:pressed {
+    background-color: #00748A;
+}
+
+QPushButton#resetBtn {
+    background-color: #0A1520;
+    color: #2E4860;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border: 1px solid #182838;
+    border-radius: 5px;
+    padding: 0 10px;
+    min-height: 28px;
+}
+
+QPushButton#resetBtn:hover {
+    border-color: #264050;
+    color: #4A7090;
+    background-color: #0C1E2E;
+}
+
+/* ── Scrollbars (caso apareçam) ───────────────────────────────────────────── */
+QScrollBar:vertical, QScrollBar:horizontal {
+    background: #08111E;
+    width: 5px;
+    height: 5px;
+}
+
+QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+    background: #1A2C3E;
+    border-radius: 3px;
+    min-height: 14px;
+    min-width: 14px;
+}
+
+QScrollBar::add-line, QScrollBar::sub-line { height: 0; width: 0; }
+QScrollBar::add-page, QScrollBar::sub-page { background: none; }
+
+/* ── Tooltips ─────────────────────────────────────────────────────────────── */
+QToolTip {
+    background-color: #0C1826;
+    color: #C0D0E0;
+    border: 1px solid #1A2C3E;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+}
