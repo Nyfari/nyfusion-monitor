@@ -60,6 +60,34 @@ QMainWindow, #mainSurface {
     letter-spacing: 1.5px;
 }
 
+#topbarOverlayBadge {
+    color: #9CB1C4;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+    background-color: #0C1A28;
+    border: 1px solid #1A2E40;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+#topbarOverlayBadge[active="true"] {
+    color: #041019;
+    background-color: #00CCEE;
+    border-color: #00CCEE;
+}
+
+#topbarOverlayBadge[waiting="true"] {
+    color: #FFD694;
+    background-color: #1A160B;
+    border-color: #5A4315;
+}
+
+#topbarOverlayDetail {
+    color: #577084;
+    font-size: 10px;
+}
+
 /* ── Sidebar ───────────────────────────────────────────────────────────────── */
 #sidebar {
     background-color: #08111E;
@@ -110,6 +138,270 @@ QMainWindow, #mainSurface {
 /* ── Conteúdo ──────────────────────────────────────────────────────────────── */
 #contentArea, #dashboardPage {
     background-color: #070D15;
+}
+
+/* ── Modal de configuração do overlay ─────────────────────────────────────── */
+#overlaySettingsDialog {
+    background-color: #09111B;
+}
+
+#overlayDialogTitle {
+    color: #E5F1FF;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+#overlayDialogSubtitle {
+    color: #6F879D;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+#overlaySectionCard,
+#overlayPreviewCard {
+    background-color: #0B1826;
+    border: 1px solid #182C40;
+    border-radius: 12px;
+}
+
+#overlaySectionTitle {
+    color: #E0ECF8;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#overlaySectionHint,
+#overlayValidationLabel {
+    color: #6A8298;
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+#overlayValidationLabel[invalid="true"] {
+    color: #FFB14A;
+}
+
+#overlayMetricCheck {
+    color: #C6D7E8;
+    spacing: 8px;
+    padding: 4px 0;
+}
+
+#overlayMetricCheck::indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid #23415A;
+    background: #081420;
+}
+
+#overlayMetricCheck::indicator:checked {
+    background: #00CCEE;
+    border-color: #00CCEE;
+}
+
+#overlayFieldLabel {
+    color: #88A0B5;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+}
+
+#overlayFieldValue {
+    color: #DCEBFA;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+QComboBox#overlayCombo {
+    background-color: #081420;
+    border: 1px solid #1A3046;
+    border-radius: 8px;
+    padding: 7px 10px;
+    min-height: 18px;
+    color: #E5F1FF;
+}
+
+QComboBox#overlayCombo:hover {
+    border-color: #28506C;
+}
+
+QComboBox#overlayCombo::drop-down {
+    width: 26px;
+    border: none;
+}
+
+QSlider#overlayOpacitySlider::groove:horizontal {
+    height: 4px;
+    background: #0D2030;
+    border-radius: 2px;
+}
+
+QSlider#overlayOpacitySlider::sub-page:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #006D8A, stop:1 #00CCEE);
+    border-radius: 2px;
+}
+
+QSlider#overlayOpacitySlider::handle:horizontal {
+    background: #DFF8FF;
+    border: 2px solid #08111E;
+    width: 12px;
+    height: 12px;
+    margin: -5px 0;
+    border-radius: 6px;
+}
+
+#overlayPreviewSurface {
+    background-color: rgba(6, 13, 22, 220);
+    border: 1px solid #182C40;
+    border-radius: 12px;
+}
+
+#overlayPreviewBadge,
+#overlayPreviewBadgeMuted {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+#overlayPreviewBadge {
+    color: #08111E;
+    background-color: #00CCEE;
+}
+
+#overlayPreviewBadgeMuted {
+    color: #B8CBDA;
+    background-color: #0C1A28;
+    border: 1px solid #1C3042;
+}
+
+#overlayPreviewMetric {
+    background-color: rgba(9, 20, 32, 210);
+    border: 1px solid #173247;
+    border-radius: 10px;
+}
+
+#overlayPreviewMetricTitle {
+    color: #6D879C;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+}
+
+#overlayPreviewMetricValue {
+    color: #E8F4FF;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+#overlayPreviewMetricTrend {
+    color: #51728A;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+/* ── Overlay flutuante real ───────────────────────────────────────────────── */
+#floatingOverlaySurface {
+    background-color: rgba(7, 14, 24, 228);
+    border: 1px solid #173043;
+    border-radius: 14px;
+}
+
+#floatingOverlayTitle {
+    color: #E6F3FF;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+}
+
+#floatingOverlaySubtitle {
+    color: #6C879D;
+    font-size: 10px;
+}
+
+#floatingOverlayModeBadge {
+    color: #07111B;
+    background-color: #00CCEE;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+#floatingOverlayMetricCard {
+    background-color: rgba(10, 20, 31, 210);
+    border: 1px solid #183247;
+    border-radius: 10px;
+}
+
+#floatingOverlayMetricTitle {
+    color: #6E879A;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+}
+
+#floatingOverlayMetricValue {
+    color: #E6F3FF;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+#floatingOverlayMetricTrend {
+    color: #4F7087;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+QPushButton#overlayPrimaryBtn,
+QPushButton#overlaySecondaryBtn,
+QPushButton#overlayGhostBtn {
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+QPushButton#overlayPrimaryBtn {
+    background-color: #00A8C8;
+    color: #051018;
+}
+
+QPushButton#overlayPrimaryBtn:hover {
+    background-color: #18B9D8;
+}
+
+QPushButton#overlayPrimaryBtn:disabled {
+    background-color: #113040;
+    color: #5B7A8E;
+}
+
+QPushButton#overlaySecondaryBtn {
+    background-color: #0D1B2A;
+    color: #C6D7E8;
+    border: 1px solid #1A3046;
+}
+
+QPushButton#overlaySecondaryBtn:hover {
+    border-color: #2A4C66;
+}
+
+QPushButton#overlayGhostBtn {
+    background-color: transparent;
+    color: #8FB2C8;
+    border: 1px dashed #23425A;
+}
+
+QPushButton#overlayGhostBtn:hover {
+    color: #CFEAFF;
+    border-color: #2E607D;
 }
 
 /* ── Painel (frame principal de GPU e CPU) ────────────────────────────────── */

@@ -4,6 +4,11 @@ add_subdirectory(application)
 add_subdirectory(infrastructure)
 add_subdirectory(ui)
 
+# Hook de LD_PRELOAD — libny_fps_hook.so (conta frames de jogos)
+if (UNIX AND NOT APPLE)
+    add_subdirectory(hook)
+endif()
+
 add_executable(ny_fusion_monitor
         main.cpp
   )

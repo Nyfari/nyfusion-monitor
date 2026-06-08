@@ -12,14 +12,23 @@
 #include <QMainWindow>
 
 class QFrame;
+class QLabel;
 class QToolButton;
 
 namespace ny::ui::dashboard {
 class DashboardPage;
 }
 
+namespace ny::ui::qt {
+class OverlayWindow;
+}
+
 namespace ny::ui::viewmodels {
 class DashboardViewModel;
+}
+
+namespace ny::ui::services {
+class OverlayRuntimeController;
 }
 
 namespace ny::ui::qt {
@@ -36,16 +45,24 @@ private:
     void buildTopbar(QWidget* parent);
     void applyTheme();
     void wireSignals();
+    void openOverlaySettingsDialog();
+    void refreshOverlayRuntimeStatus();
 
     // ── Sidebar ──────────────────────────────────────────────────────────
     QFrame*      m_sidebar      { nullptr };
+    QToolButton* m_homeBtn      { nullptr };
+    QToolButton* m_overlayBtn   { nullptr };
     QToolButton* m_activeSideBtn{ nullptr };
+    QLabel*      m_overlayStatusBadge{ nullptr };
+    QLabel*      m_overlayDetailLabel{ nullptr };
 
     // ── Content ──────────────────────────────────────────────────────────
     ny::ui::dashboard::DashboardPage* m_dashboardPage{ nullptr };
+    std::unique_ptr<ny::ui::qt::OverlayWindow> m_overlayWindow;
 
     // ── Backend ──────────────────────────────────────────────────────────
     std::unique_ptr<ny::ui::viewmodels::DashboardViewModel> m_viewModel;
+    std::unique_ptr<ny::ui::services::OverlayRuntimeController> m_overlayRuntimeController;
 };
 
 } // namespace ny::ui::qt

@@ -6,14 +6,20 @@
 #include "MainWindow.hpp"
 
 #include <QApplication>
+#include <QDialog>
 #include <QFile>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QStyle>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <QRegularExpression>
 
 #include "dashboard/DashboardPage.hpp"
+#include "OverlaySettingsDialog.hpp"
+#include "OverlayWindow.hpp"
+#include "services/OverlayRuntimeController.hpp"
 #include "viewmodels/DashboardViewModel.hpp"
 
 namespace ny::ui::qt {
@@ -73,6 +79,20 @@ void MainWindow::buildSidebar(QWidget* sideWidget) {
     bool first = true;
     for (auto& item : items) {
         auto* btn = makeSideBtn(item.icon, item.text, sideWidget);
+        if (item.text == "HOME") {
+            m_homeBtn = btn;
+        }
+        if (item.text == "OVER") {
+            m_overlayBtn = btn;
+            btn->setCheckable(false);
+            btn->setAutoExclusive(false);
+            btn->setToolTip(QStringLiteral("Abrir configuração do overlay"));
+            connect(btn, &QToolButton::clicked, this, &MainWindow::openOverlaySettingsDialog);
+        } else {
+            connect(btn, &QToolButton::clicked, this, [this, btn]() {
+                m_activeSideBtn = btn;
+            });
+        }
         if (first) {
             btn->setChecked(true);
             m_activeSideBtn = btn;
@@ -84,6 +104,8 @@ void MainWindow::buildSidebar(QWidget* sideWidget) {
     layout->addStretch();
 
     auto* settingsBtn = makeSideBtn("⚙", "SETTINGS", sideWidget);
+    settingsBtn->setCheckable(false);
+    settingsBtn->setAutoExclusive(false);
     layout->addWidget(settingsBtn);
 }
 
@@ -109,10 +131,20 @@ void MainWindow::buildTopbar(QWidget* topWidget) {
     layout->addWidget(titleLabel);
     layout->addStretch();
 
+    m_overlayStatusBadge = new QLabel(topWidget);
+    m_overlayStatusBadge->setObjectName("topbarOverlayBadge");
+
+    m_overlayDetailLabel = new QLabel(topWidget);
+    m_overlayDetailLabel->setObjectName("topbarOverlayDetail");
+    m_overlayDetailLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
     // Right: version
     auto* versionLabel = new QLabel("v0.2", topWidget);
     versionLabel->setObjectName("topbarVersion");
 
+    layout->addWidget(m_overlayStatusBadge);
+    layout->addSpacing(8);
+    layout->addWidget(m_overlayDetailLabel);
     layout->addSpacing(12);
     layout->addWidget(versionLabel);
 }
@@ -120,7 +152,9 @@ void MainWindow::buildTopbar(QWidget* topWidget) {
 // ── Constructor ───────────────────────────────────────────────────────────────
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
+    , m_overlayWindow(std::make_unique<ny::ui::qt::OverlayWindow>())
     , m_viewModel(std::make_unique<ny::ui::viewmodels::DashboardViewModel>())
+    , m_overlayRuntimeController(std::make_unique<ny::ui::services::OverlayRuntimeController>())
 {
     setWindowTitle("NyFusion Monitor");
     resize(1360, 820);
@@ -177,9 +211,46 @@ MainWindow::MainWindow(QWidget* parent)
 
     applyTheme();
     wireSignals();
+    m_overlayWindow->setRuntimeState(m_overlayRuntimeController->currentState());
+    refreshOverlayRuntimeStatus();
 }
 
 MainWindow::~MainWindow() = default;
+
+void MainWindow::openOverlaySettingsDialog() {
+    OverlaySettingsDialog dialog(this);
+    dialog.exec();
+
+    if (m_overlayRuntimeController) {
+        m_overlayRuntimeController->reloadSettings();
+    }
+    if (m_overlayWindow) {
+        m_overlayWindow->reloadSettings();
+        m_overlayWindow->setRuntimeState(m_overlayRuntimeController->currentState());
+    }
+
+    if (m_activeSideBtn) {
+        m_activeSideBtn->setChecked(true);
+    } else if (m_homeBtn) {
+        m_homeBtn->setChecked(true);
+        m_activeSideBtn = m_homeBtn;
+    }
+}
+
+void MainWindow::refreshOverlayRuntimeStatus() {
+    if (!m_overlayRuntimeController || !m_overlayStatusBadge || !m_overlayDetailLabel) {
+        return;
+    }
+
+    const auto runtimeState = m_overlayRuntimeController->currentState();
+    m_overlayStatusBadge->setText(runtimeState.summaryText.toUpper());
+    m_overlayStatusBadge->setProperty("active", runtimeState.overlayActive);
+    m_overlayStatusBadge->setProperty("waiting", runtimeState.configuredEnabled && !runtimeState.overlayActive);
+    m_overlayDetailLabel->setText(runtimeState.detailText);
+
+    m_overlayStatusBadge->style()->unpolish(m_overlayStatusBadge);
+    m_overlayStatusBadge->style()->polish(m_overlayStatusBadge);
+}
 
 // ── applyTheme ────────────────────────────────────────────────────────────────
 void MainWindow::applyTheme() {
@@ -202,6 +273,39 @@ void MainWindow::wireSignals() {
                 m_viewModel->memoryData(),
                 m_viewModel->gpusData()
             );
+
+            const auto gpus = m_viewModel->gpusData();
+            if (!gpus.isEmpty()) {
+                static const QRegularExpression re(QStringLiteral(R"([-+]?\d+(?:[\.,]\d+)?)"));
+                const auto match = re.match(gpus.first().usage);
+                if (match.hasMatch()) {
+                    bool ok = false;
+                    const float gpuUsagePercent = match.captured(0).replace(',', '.').toFloat(&ok);
+                    if (ok && m_overlayRuntimeController) {
+                        m_overlayRuntimeController->setGpuUsagePercent(gpuUsagePercent);
+                    }
+                }
+            }
+
+            if (m_overlayWindow) {
+                m_overlayWindow->updateMetrics(
+                    m_viewModel->cpuData(),
+                    m_viewModel->memoryData(),
+                    m_viewModel->gpusData()
+                );
+            }
+        }
+    );
+
+    connect(
+        m_overlayRuntimeController.get(),
+        &ny::ui::services::OverlayRuntimeController::stateChanged,
+        this,
+        [this]() {
+            refreshOverlayRuntimeStatus();
+            if (m_overlayWindow) {
+                m_overlayWindow->setRuntimeState(m_overlayRuntimeController->currentState());
+            }
         }
     );
 }
