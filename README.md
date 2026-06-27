@@ -1,6 +1,6 @@
-# NyFusion Monitor
+# Fusion Monitor
 
-NyFusion Monitor é um sistema de monitoramento de hardware moderno, modular e multiplataforma, desenvolvido em C++20, inspirado em ferramentas consagradas como **HWMonitor** e **MSI Afterburner**, mas projetado desde o início para oferecer uma **base única de monitoramento independente do sistema operacional** utilizado pelo usuário.
+Fusion Monitor é um sistema de monitoramento de hardware moderno, modular e multiplataforma, desenvolvido em C++20, inspirado em ferramentas consagradas como **HWMonitor** e **MSI Afterburner**, mas projetado desde o início para oferecer uma **base única de monitoramento independente do sistema operacional** utilizado pelo usuário.
 
 O projeto foca em arquitetura limpa, longevidade do código e extensibilidade por sistema operacional, permitindo que a mesma aplicação seja utilizada em ambientes Linux, Windows e macOS sem comprometer o domínio ou a qualidade arquitetural.
 
@@ -8,7 +8,7 @@ O projeto nasce Linux-first, mas é projetado desde o início para suportar Wind
 
 ## 🎯 Objetivo do Projeto
 
-O objetivo do NyFusion Monitor é fornecer uma base sólida para:
+O objetivo do Fusion Monitor é fornecer uma base sólida para:
 
 - Monitoramento de CPU, GPU, memória e outros recursos
 - Separação clara entre regras de negócio e detalhes de sistema operacional
